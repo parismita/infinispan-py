@@ -9,22 +9,30 @@ from contextlib import contextmanager
 
 
 class SocketConnection(object):
-    def __init__(self, host="127.0.0.1", port=11222, timeout=10):
-        self.host = host
-        self.port = port
+    def __init__(self, servers=[{"host": "127.0.0.1", "port": "11222"}], timeout=10):
+        self.servers = servers
         self.timeout = timeout
         self._s = None
+        self.flag = 0
         self.lock = threading.Lock()
 
     def connect(self):
         if self._s:
             raise error.ConnectionError("Already connected.")
-        self._s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            self._s.connect((self.host, self.port))
-            self._s.setblocking(0)
-        except socket.error:
-            self._s = None
+
+        for server in self.servers:
+            self._s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            host = server["host"]
+            port = int(server["port"])
+            try:
+                self._s.connect((host, port))
+                self._s.setblocking(0)
+                self.flag = 1
+                print "connected to - ", host, ":", port
+            except socket.error:
+                self._s = None
+
+        if self.flag == 0:
             raise error.ConnectionError("Connection refused.")
 
     def send(self, byte_array):
