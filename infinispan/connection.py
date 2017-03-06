@@ -28,7 +28,7 @@ class SocketConnection(object):
                 self._s.connect((host, port))
                 self._s.setblocking(0)
                 self.flag = 1
-                print "connected to - ", host, ":", port
+                print("connected to - ", host, ":", port)
             except socket.error:
                 self._s = None
 
