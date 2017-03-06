@@ -36,7 +36,7 @@ class Infinispan(object):
     'put_async'. Async operations return :class:`concurrent.futures.Future`.
     """
 
-    def __init__(self, host="127.0.0.1", port=11222, timeout=10,
+    def __init__(self, servers=[{"host": "127.0.0.1", "port": "11222"}], timeout=10,
                  cache_name=None, key_serial=None, val_serial=None,
                  pool_size=20):
         """Initializes new client instance.
@@ -57,14 +57,14 @@ class Infinispan(object):
                           async operations.
         """
 
-        log.info("Initializing client with host=%r, port=%r, timeout=%r, "
+        log.info("Initializing client with servers=%r, timeout=%r, "
                  "cache_name=%r, key_serial=%r, val_serial=%r, pool_size=%r",
-                 host, port, timeout, cache_name, key_serial, val_serial,
+                 servers, timeout, cache_name, key_serial, val_serial,
                  pool_size)
 
         self.conn_type = connection.SocketConnection
         conn = connection.ConnectionPool(connections=[
-            self.conn_type(host, port, timeout=timeout)])
+            self.conn_type(servers, timeout=timeout)])
         self.protocol = hotrod.Protocol(conn, timeout=timeout)
         self.cache_name = cache_name
         self.ci = ClientIntelligence.TOPOLOGY
